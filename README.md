@@ -4,6 +4,8 @@
 
 An AI-powered productivity tracker that uses your webcam to monitor work habits and provide intelligent insights. Built with SmolVLM for real-time activity detection and local analytics for comprehensive productivity analysis.
 
+> **🙏 Credits**: This project is based on the excellent [SmolVLM real-time webcam demo](https://github.com/ngxson/smolvlm-realtime-webcam) by [@ngxson](https://github.com/ngxson). The original demo has been transformed into a comprehensive productivity tracking application with enhanced UI, activity categorization, and local analytics.
+
 ## ✨ Features
 
 - **🔍 Real-time Activity Detection**: Monitors 5 distinct activity types with laptop-optimized detection
