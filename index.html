@@ -3,161 +3,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Interaction App</title>
+    <title>Productivity Tracker - AI-Powered Webcam Monitor</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 20px;
             padding: 20px;
-            background-color: #f0f0f0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
         }
-        .controls, .io-areas {
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .video-section {
             display: flex;
-            gap: 10px;
-            align-items: center;
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .io-areas {
             flex-direction: column;
-            align-items: stretch;
+            align-items: center;
+            gap: 15px;
         }
-        textarea {
-            width: 300px;
-            height: 80px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
+
         #videoFeed {
-            width: 480px;
+            width: 100%;
+            max-width: 480px;
             height: 360px;
-            border: 2px solid #333;
+            border: 3px solid #4a5568;
             background-color: #000;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-        #startButton {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 4px;
+
+        .activity-panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .current-activity {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(45deg, #28a745, #20c997);
             color: white;
-        }
-        #startButton.start {
-            background-color: #28a745; /* Green */
-        }
-        #startButton.stop {
-            background-color: #dc3545; /* Red */
-        }
-        label {
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.2em;
             font-weight: bold;
         }
-        select {
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+
+        .activity-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
+
+        @media (max-width: 600px) {
+            .activity-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            flex-wrap: wrap;
+        }
+
+        .config-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .config-group label {
+            font-weight: bold;
+            color: #495057;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .config-group input, .config-group select, .config-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .config-group textarea {
+            height: 60px;
+            resize: vertical;
+        }
+
+        #startButton {
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #startButton.start {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        #startButton.start:hover {
+            background: linear-gradient(45deg, #218838, #1ea085);
+            transform: translateY(-2px);
+        }
+
+        #startButton.stop {
+            background: linear-gradient(45deg, #dc3545, #e74c3c);
+        }
+
+        #startButton.stop:hover {
+            background: linear-gradient(45deg, #c82333, #dc2626);
+            transform: translateY(-2px);
+        }
+
+        #summaryButton {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #6f42c1, #8b5cf6);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        #summaryButton:hover {
+            background: linear-gradient(45deg, #5a2d91, #7c3aed);
+            transform: translateY(-2px);
+        }
+
+        #summaryButton:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .activity-log {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e9ecef;
+        }
+
+        .activity-log h3 {
+            margin-top: 0;
+            color: #495057;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 6px;
+            border-left: 4px solid #28a745;
+        }
+
+        .activity-item.phone { border-left-color: #dc3545; }
+        .activity-item.away { border-left-color: #ffc107; }
+        .activity-item.drinking { border-left-color: #17a2b8; }
+        .activity-item.distracted { border-left-color: #fd7e14; }
+        .activity-item.working { border-left-color: #28a745; }
+
+        .activity-time {
+            font-size: 0.9em;
+            color: #6c757d;
+            font-weight: bold;
+        }
+
+        .activity-desc {
+            flex-grow: 1;
+            margin: 0 10px;
+            font-size: 0.95em;
+        }
+
+        .activity-type {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .summary-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .summary-content {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
         .hidden {
             display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .session-info {
+            text-align: center;
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: #1565c0;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>🎯 AI Productivity Tracker</h1>
 
-    <h1>Camera Interaction App</h1>
+        <div class="config-section">
+            <div class="config-group">
+                <label for="baseURL">SmolVLM API (llama.cpp):</label>
+                <input id="baseURL" value="http://localhost:8080" />
+            </div>
 
-    <video id="videoFeed" autoplay playsinline></video>
-    <canvas id="canvas" class="hidden"></canvas> <!-- For capturing frames -->
-
-    <div class="io-areas">
-        <div>
-            <label for="baseURL">Base API:</label><br>
-            <input id="baseURL" name="Instruction" value="http://localhost:8080"></textarea>
+            <div class="config-group">
+                <label for="intervalSelect">Detection Interval:</label>
+                <select id="intervalSelect">
+                    <option value="1000">1 second</option>
+                    <option value="2000" selected>2 seconds</option>
+                    <option value="3000">3 seconds</option>
+                    <option value="5000">5 seconds</option>
+                </select>
+            </div>
         </div>
-        <div>
-            <label for="instructionText">Instruction:</label><br>
-            <textarea id="instructionText" style="height: 2em; width: 40em" name="Instruction"></textarea>
-        </div>
-        <div>
-            <label for="responseText">Response:</label><br>
-            <textarea id="responseText" style="height: 2em; width: 40em" name="Response" readonly placeholder="Server response will appear here..."></textarea>
-        </div>
-    </div>
 
-    <div class="controls">
-        <label for="intervalSelect">Interval between 2 requests:</label>
-        <select id="intervalSelect" name="Interval between 2 requests">
-            <option value="100">100ms</option>
-            <option value="250">250ms</option>
-            <option value="500" selected>500ms</option>
-            <option value="1000">1s</option>
-            <option value="2000">2s</option>
-        </select>
-        <button id="startButton" class="start">Start</button>
+        <div class="main-content">
+            <div class="video-section">
+                <video id="videoFeed" autoplay playsinline></video>
+                <canvas id="canvas" class="hidden"></canvas>
+                
+                <div class="controls">
+                    <button id="startButton" class="start">Start Tracking</button>
+                    <button id="localSummaryButton" style="padding: 12px 25px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Generate Summary</button>
+                    <button id="clearButton" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">Clear Data</button>
+                </div>
+            </div>
+
+            <div class="activity-panel">
+                <div class="session-info" id="sessionInfo">
+                    Session not started
+                </div>
+                
+                <div class="current-activity" id="currentActivity">
+                    Ready to start tracking...
+                </div>
+
+                <div class="activity-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="workingCount">0</div>
+                        <div class="stat-label">Working</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="phoneCount">0</div>
+                        <div class="stat-label">Phone Usage</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="awayCount">0</div>
+                        <div class="stat-label">Away from Desk</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="drinkingCount">0</div>
+                        <div class="stat-label">Drinking</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="distractedCount">0</div>
+                        <div class="stat-label">Distracted</div>
+                    </div>
+                </div>
+
+                <div class="activity-log">
+                    <h3>Activity Log</h3>
+                    <div id="activityList">
+                        <p style="text-align: center; color: #6c757d; font-style: italic;">No activities recorded yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-section">
+            <h3>📊 Productivity Summary</h3>
+            <div class="summary-content" id="summaryContent">
+                Click "Generate Summary" to analyze your productivity session with detailed insights and recommendations.
+            </div>
+        </div>
     </div>
 
     <script>
+        // DOM Elements
         const video = document.getElementById('videoFeed');
         const canvas = document.getElementById('canvas');
         const baseURL = document.getElementById('baseURL');
-        const instructionText = document.getElementById('instructionText');
-        const responseText = document.getElementById('responseText');
         const intervalSelect = document.getElementById('intervalSelect');
         const startButton = document.getElementById('startButton');
+        const localSummaryButton = document.getElementById('localSummaryButton');
+        const clearButton = document.getElementById('clearButton');
+        const sessionInfo = document.getElementById('sessionInfo');
+        const currentActivity = document.getElementById('currentActivity');
+        const activityList = document.getElementById('activityList');
+        const summaryContent = document.getElementById('summaryContent');
 
-        instructionText.value = "What do you see?"; // default instruction
+        // Statistics elements
+        const workingCount = document.getElementById('workingCount');
+        const phoneCount = document.getElementById('phoneCount');
+        const awayCount = document.getElementById('awayCount');
+        const drinkingCount = document.getElementById('drinkingCount');
+        const distractedCount = document.getElementById('distractedCount');
 
+        // Application state
         let stream;
         let intervalId;
         let isProcessing = false;
+        let sessionStartTime = null;
+        let activities = [];
+        let activityCounts = {
+            working: 0,
+            phone: 0,
+            away: 0,
+            drinking: 0,
+            distracted: 0
+        };
 
-        // Returns response text (string)
-        async function sendChatCompletionRequest(instruction, imageBase64URL) {
-            const response = await fetch(`${baseURL.value}/v1/chat/completions`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    max_tokens: 100,
-                    messages: [
-                        { role: 'user', content: [
-                            { type: 'text', text: instruction },
-                            { type: 'image_url', image_url: {
-                                url: imageBase64URL,
-                            } }
-                        ] },
-                    ]
-                })
-            });
-            if (!response.ok) {
-                const errorData = await response.text();
-                return `Server error: ${response.status} - ${errorData}`;
-            }
-            const data = await response.json();
-            return data.choices[0].message.content;
-        }
+        // Productivity detection prompt optimized for laptop webcam positioning
+        const PRODUCTIVITY_PROMPT = `Analyze this webcam image and determine the person's work activity. Webcam is above laptop screen. Respond ONLY with JSON: {"activity": "working|phone|away|drinking|distracted", "description": "brief activity description", "confidence": 0.0-1.0}.
 
-        // 1. Ask for camera permission on load
+CRITICAL: Focus ONLY on work-related behavior, ignore appearance, gender, clothing, or physical descriptions.
+
+Activities:
+- working: Person visible and looking directly at laptop screen/camera area, hands positioned for typing, engaged with computer, focused on work
+- phone: ONLY if you can clearly see a rectangular mobile device/smartphone in the person's hands or near their face. Must see actual device.
+- away: Person is COMPLETELY NOT VISIBLE in the frame - empty chair, no person present, physically absent from workspace
+- drinking: Person visible and actively drinking from cup/bottle/glass, beverage container clearly visible at mouth
+- distracted: Person IS VISIBLE but NOT focused on screen - looking left/right/up/down, head turned away, eyes not on screen, talking, yawning, stretching, fidgeting, hands away from keyboard, reading something else, daydreaming
+
+CRITICAL DETECTION RULES:
+- If person is VISIBLE and eyes/head directed toward screen/camera = WORKING
+- If person is VISIBLE but eyes/head NOT directed at screen = DISTRACTED (NOT away!)
+- If person is NOT VISIBLE at all in frame = AWAY
+- Phone detection: MUST see actual device - no assumptions
+- DISTRACTION INDICATORS: looking elsewhere, talking, yawning, stretching, fidgeting, hands not typing
+- KEY: "away" means physically absent, "distracted" means present but attention elsewhere
+- Focus on EYE DIRECTION and ATTENTION, not just head position
+- Examples: "looking at screen", "eyes looking away", "talking", "stretching", "holding phone", "not visible in frame"
+
+Return ONLY valid JSON, no other text.`;
+
+        // Initialize camera
         async function initCamera() {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 video.srcObject = stream;
-                responseText.value = "Camera access granted. Ready to start.";
+                currentActivity.textContent = "Camera ready - Click 'Start Tracking' to begin";
+                currentActivity.style.background = "linear-gradient(45deg, #17a2b8, #20c997)";
             } catch (err) {
                 console.error("Error accessing camera:", err);
-                responseText.value = `Error accessing camera: ${err.name} - ${err.message}. Please ensure permissions are granted and you are on HTTPS or localhost.`;
-                alert(`Error accessing camera: ${err.name}. Make sure you've granted permission and are on HTTPS or localhost.`);
+                currentActivity.textContent = `Camera Error: ${err.message}`;
+                currentActivity.style.background = "linear-gradient(45deg, #dc3545, #e74c3c)";
+                alert(`Camera access error: ${err.name}. Please grant permission and ensure you're on HTTPS or localhost.`);
             }
         }
 
+        // Capture image from video
         function captureImage() {
             if (!stream || !video.videoWidth) {
                 console.warn("Video stream not ready for capture.");
@@ -167,78 +493,421 @@
             canvas.height = video.videoHeight;
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            return canvas.toDataURL('image/jpeg', 0.8); // Use JPEG for smaller size, 0.8 quality
+            return canvas.toDataURL('image/jpeg', 0.8);
         }
 
-        async function sendData() {
-            if (!isProcessing) return; // Ensure we don't have overlapping requests if processing takes longer than interval
+        // Send request to SmolVLM
+        async function sendVisionRequest(imageBase64URL) {
+            const response = await fetch(`${baseURL.value}/v1/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    max_tokens: 150,
+                    messages: [
+                        { role: 'user', content: [
+                            { type: 'text', text: PRODUCTIVITY_PROMPT },
+                            { type: 'image_url', image_url: { url: imageBase64URL } }
+                        ] }
+                    ]
+                })
+            });
 
-            const instruction = instructionText.value;
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+
+        // Clean description to remove unnecessary details
+        function cleanDescription(description) {
+            if (!description) return 'No description';
+            
+            // Remove common unnecessary phrases
+            let cleaned = description
+                .replace(/In this image[^,.]*/gi, '')
+                .replace(/The image shows[^,.]*/gi, '')
+                .replace(/A (woman|man|person) with[^,.]*/gi, '')
+                .replace(/The (woman|man|person)[^,.]*/gi, '')
+                .replace(/(woman|man|person) (with|in|wearing)[^,.]*/gi, '')
+                .replace(/appears to be/gi, '')
+                .replace(/seems to be/gi, '')
+                .replace(/looks like/gi, '')
+                .replace(/neutral expression/gi, '')
+                .replace(/white (t-shirt|shirt)/gi, '')
+                .replace(/dark hair/gi, '')
+                .replace(/in front of.*wall/gi, '')
+                .trim();
+            
+            // If description is too generic or empty after cleaning, provide a simple default
+            if (cleaned.length < 5 || cleaned.includes('neutral') || cleaned.includes('expression')) {
+                return 'Person at computer';
+            }
+            
+            // Limit to 50 characters
+            return cleaned.substring(0, 50).trim();
+        }
+
+        // Parse AI response
+        function parseActivityResponse(response) {
+            try {
+                // Try to extract JSON from response
+                const jsonMatch = response.match(/\{[^}]*\}/);
+                if (jsonMatch) {
+                    const parsed = JSON.parse(jsonMatch[0]);
+                    return {
+                        activity: parsed.activity || 'working',
+                        description: cleanDescription(parsed.description),
+                        confidence: parsed.confidence || 0.5
+                    };
+                }
+            } catch (e) {
+                console.warn('Failed to parse JSON response:', e);
+            }
+
+            // Fallback: laptop-focused text analysis
+            const text = response.toLowerCase();
+            let activity = 'working'; // Default to working instead of unknown
+            
+            // Check for phone usage (highest priority) - must be very explicit
+            if ((text.includes('phone') || text.includes('mobile') || text.includes('smartphone')) && 
+                (text.includes('holding') || text.includes('visible') || text.includes('in hands') || text.includes('device'))) {
+                activity = 'phone';
+            }
+            // Check for drinking
+            else if (text.includes('drinking') || text.includes('coffee') || text.includes('water') || 
+                     text.includes('cup') || text.includes('mug') || text.includes('bottle') || text.includes('beverage')) {
+                activity = 'drinking';
+            }
+            // Check for distracted BEFORE checking away (person visible but not focused)
+            else if (text.includes('looking away') || text.includes('turned away') || text.includes('not focused') ||
+                     text.includes('hands away') || text.includes('not engaged') || text.includes('talking') ||
+                     text.includes('looking left') || text.includes('looking right') || text.includes('looking up') ||
+                     text.includes('looking down') || text.includes('head turned') || text.includes('not looking at') ||
+                     text.includes('visible but') || text.includes('present but') || text.includes('eyes') ||
+                     text.includes('yawning') || text.includes('stretching') || text.includes('fidgeting') ||
+                     text.includes('daydreaming') || text.includes('distracted') || text.includes('unfocused') ||
+                     text.includes('attention') || text.includes('elsewhere') || text.includes('not paying')) {
+                activity = 'distracted';
+            }
+            // Check for away/absent ONLY if truly not visible
+            else if ((text.includes('not visible') || text.includes('absent') || text.includes('empty') || 
+                     text.includes('no person') || text.includes('chair empty')) && 
+                     !text.includes('visible')) {
+                activity = 'away';
+            }
+            // Check for clear working indicators
+            else if (text.includes('typing') || text.includes('keyboard') || text.includes('hands on') || 
+                     text.includes('engaged') || text.includes('focused') || text.includes('looking at screen') ||
+                     text.includes('looking at camera') || text.includes('looking at laptop') || text.includes('computer work')) {
+                activity = 'working';
+            }
+            // Default case: if person is visible and not clearly doing something else, assume working
+
+            // Generate simple description based on detected activity
+            let simpleDescription = 'Person at computer';
+            if (activity === 'phone') simpleDescription = 'Using phone';
+            else if (activity === 'away') simpleDescription = 'Not visible in frame';
+            else if (activity === 'drinking') simpleDescription = 'Taking a drink';
+            else if (activity === 'distracted') {
+                // More specific distracted descriptions based on text content
+                if (text.includes('talking')) simpleDescription = 'Talking';
+                else if (text.includes('yawning')) simpleDescription = 'Yawning';
+                else if (text.includes('stretching')) simpleDescription = 'Stretching';
+                else if (text.includes('fidgeting')) simpleDescription = 'Fidgeting';
+                else if (text.includes('looking left') || text.includes('looking right')) simpleDescription = 'Looking sideways';
+                else if (text.includes('looking up') || text.includes('looking down')) simpleDescription = 'Looking away';
+                else simpleDescription = 'Not focused on screen';
+            }
+            else if (activity === 'working') simpleDescription = 'Looking at screen';
+
+            return {
+                activity: activity,
+                description: simpleDescription,
+                confidence: 0.5
+            };
+        }
+
+        // Add activity to log
+        function addActivity(activityData) {
+            const timestamp = new Date();
+            const activity = {
+                timestamp: timestamp,
+                type: activityData.activity,
+                description: activityData.description,
+                confidence: activityData.confidence
+            };
+
+            activities.push(activity);
+            activityCounts[activity.type] = (activityCounts[activity.type] || 0) + 1;
+
+            // Update UI
+            updateActivityDisplay(activity);
+            updateStatistics();
+            saveToLocalStorage();
+        }
+
+        // Update current activity display
+        function updateActivityDisplay(activity) {
+            const activityEmojis = {
+                working: '💻',
+                phone: '📱',
+                away: '🚶',
+                drinking: '☕',
+                distracted: '😴'
+            };
+
+            const activityColors = {
+                working: 'linear-gradient(45deg, #28a745, #20c997)',
+                phone: 'linear-gradient(45deg, #dc3545, #e74c3c)',
+                away: 'linear-gradient(45deg, #ffc107, #fd7e14)',
+                drinking: 'linear-gradient(45deg, #17a2b8, #20c997)',
+                distracted: 'linear-gradient(45deg, #fd7e14, #ffc107)'
+            };
+
+            currentActivity.innerHTML = `${activityEmojis[activity.type]} ${activity.type.toUpperCase()}: ${activity.description}`;
+            currentActivity.style.background = activityColors[activity.type];
+
+            // Add to activity list
+            const activityItem = document.createElement('div');
+            activityItem.className = `activity-item ${activity.type}`;
+            activityItem.innerHTML = `
+                <span class="activity-time">${activity.timestamp.toLocaleTimeString()}</span>
+                <span class="activity-desc">${activity.description}</span>
+                <span class="activity-type">${activity.type}</span>
+            `;
+
+            if (activityList.firstChild && activityList.firstChild.tagName === 'P') {
+                activityList.innerHTML = '';
+            }
+            activityList.insertBefore(activityItem, activityList.firstChild);
+
+            // Limit to 20 items in display
+            while (activityList.children.length > 20) {
+                activityList.removeChild(activityList.lastChild);
+            }
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            workingCount.textContent = activityCounts.working || 0;
+            phoneCount.textContent = activityCounts.phone || 0;
+            awayCount.textContent = activityCounts.away || 0;
+            drinkingCount.textContent = activityCounts.drinking || 0;
+            distractedCount.textContent = activityCounts.distracted || 0;
+        }
+
+        // Save data to localStorage
+        function saveToLocalStorage() {
+            const sessionData = {
+                sessionStart: sessionStartTime,
+                activities: activities,
+                counts: activityCounts
+            };
+            localStorage.setItem('productivityTracker', JSON.stringify(sessionData));
+        }
+
+        // Load data from localStorage
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('productivityTracker');
+            if (saved) {
+                const data = JSON.parse(saved);
+                sessionStartTime = data.sessionStart ? new Date(data.sessionStart) : null;
+                activities = data.activities || [];
+                activityCounts = data.counts || { working: 0, phone: 0, away: 0, drinking: 0, distracted: 0 };
+                
+                // Restore UI
+                updateStatistics();
+                if (sessionStartTime) {
+                    updateSessionInfo();
+                }
+                
+                // Restore activity list
+                activities.slice(-20).forEach(activity => {
+                    const activityItem = document.createElement('div');
+                    activityItem.className = `activity-item ${activity.type}`;
+                    activityItem.innerHTML = `
+                        <span class="activity-time">${new Date(activity.timestamp).toLocaleTimeString()}</span>
+                        <span class="activity-desc">${activity.description}</span>
+                        <span class="activity-type">${activity.type}</span>
+                    `;
+                    activityList.appendChild(activityItem);
+                });
+                
+                if (activities.length > 0 && activityList.firstChild && activityList.firstChild.tagName === 'P') {
+                    activityList.innerHTML = '';
+                    activities.slice(-20).forEach(activity => {
+                        const activityItem = document.createElement('div');
+                        activityItem.className = `activity-item ${activity.type}`;
+                        activityItem.innerHTML = `
+                            <span class="activity-time">${new Date(activity.timestamp).toLocaleTimeString()}</span>
+                            <span class="activity-desc">${activity.description}</span>
+                            <span class="activity-type">${activity.type}</span>
+                        `;
+                        activityList.appendChild(activityItem);
+                    });
+                }
+            }
+        }
+
+        // Update session info
+        function updateSessionInfo() {
+            if (sessionStartTime) {
+                const duration = Math.floor((new Date() - sessionStartTime) / 1000 / 60);
+                sessionInfo.textContent = `Session: ${duration} minutes | ${activities.length} activities recorded`;
+            }
+        }
+
+        // Main processing function
+        async function processFrame() {
+            if (!isProcessing) return;
+
             const imageBase64URL = captureImage();
-
             if (!imageBase64URL) {
-                responseText.value = "Failed to capture image. Stream might not be active.";
-                // Optionally stop processing if image capture fails consistently
-                // handleStop();
+                console.warn("Failed to capture image");
                 return;
             }
 
-            const payload = {
-                instruction: instruction,
-                imageBase64URL: imageBase64URL
-            };
-
             try {
-                const response = await sendChatCompletionRequest(payload.instruction, payload.imageBase64URL);
-                responseText.value = response;
+                const response = await sendVisionRequest(imageBase64URL);
+                const activityData = parseActivityResponse(response);
+                addActivity(activityData);
+                updateSessionInfo();
             } catch (error) {
-                console.error('Error sending data:', error);
-                responseText.value = `Error: ${error.message}`;
+                console.error('Error processing frame:', error);
+                currentActivity.textContent = `Error: ${error.message}`;
+                currentActivity.style.background = "linear-gradient(45deg, #dc3545, #e74c3c)";
             }
         }
 
+        // Start tracking
         function handleStart() {
             if (!stream) {
-                responseText.value = "Camera not available. Cannot start.";
                 alert("Camera not available. Please grant permission first.");
                 return;
             }
+
             isProcessing = true;
-            startButton.textContent = "Stop";
+            sessionStartTime = new Date();
+            startButton.textContent = "Stop Tracking";
             startButton.classList.remove('start');
             startButton.classList.add('stop');
 
-            instructionText.disabled = true;
-            intervalSelect.disabled = true;
-
-            responseText.value = "Processing started...";
+            currentActivity.textContent = "Starting productivity tracking...";
+            currentActivity.style.background = "linear-gradient(45deg, #17a2b8, #20c997)";
 
             const intervalMs = parseInt(intervalSelect.value, 10);
             
-            // Initial immediate call
-            sendData(); 
+            // Initial call
+            processFrame();
             
-            // Then set interval
-            intervalId = setInterval(sendData, intervalMs);
+            // Set interval
+            intervalId = setInterval(processFrame, intervalMs);
+            
+            updateSessionInfo();
+            saveToLocalStorage();
         }
 
+        // Stop tracking
         function handleStop() {
             isProcessing = false;
             if (intervalId) {
                 clearInterval(intervalId);
                 intervalId = null;
             }
-            startButton.textContent = "Start";
+
+            startButton.textContent = "Start Tracking";
             startButton.classList.remove('stop');
             startButton.classList.add('start');
 
-            instructionText.disabled = false;
-            intervalSelect.disabled = false;
-            if (responseText.value.startsWith("Processing started...")) {
-                responseText.value = "Processing stopped.";
+            currentActivity.textContent = "Tracking stopped. Click 'Generate Summary' for insights.";
+            currentActivity.style.background = "linear-gradient(45deg, #6c757d, #495057)";
+            
+            saveToLocalStorage();
+        }
+
+
+
+        // Alternative: Generate summary without Ollama (local analysis)
+        async function generateLocalSummary() {
+            if (activities.length === 0) {
+                alert("No activities recorded yet. Start tracking first!");
+                return;
+            }
+
+            const sessionDuration = sessionStartTime ? Math.floor((new Date() - sessionStartTime) / 1000 / 60) : 0;
+            const totalActivities = activities.length;
+            
+            // Calculate percentages
+            const workingPercentage = Math.round((activityCounts.working / totalActivities) * 100) || 0;
+            const phonePercentage = Math.round((activityCounts.phone / totalActivities) * 100) || 0;
+            const awayPercentage = Math.round((activityCounts.away / totalActivities) * 100) || 0;
+            const drinkingPercentage = Math.round((activityCounts.drinking / totalActivities) * 100) || 0;
+            const distractedPercentage = Math.round((activityCounts.distracted / totalActivities) * 100) || 0;
+
+            // Generate insights
+            let productivity = 'Good';
+            if (workingPercentage < 50) productivity = 'Needs Improvement';
+            else if (workingPercentage > 80) productivity = 'Excellent';
+
+            let mainDistraction = 'None';
+            if (phonePercentage > 20) mainDistraction = 'Phone Usage';
+            else if (awayPercentage > 30) mainDistraction = 'Away from Desk';
+            else if (distractedPercentage > 25) mainDistraction = 'General Distractions';
+
+            const summary = `📊 PRODUCTIVITY SUMMARY
+Session Duration: ${sessionDuration} minutes
+Total Activities: ${totalActivities}
+
+📈 ACTIVITY BREAKDOWN:
+• Working: ${activityCounts.working} times (${workingPercentage}%)
+• Phone Usage: ${activityCounts.phone} times (${phonePercentage}%)
+• Away from Desk: ${activityCounts.away} times (${awayPercentage}%)
+• Drinking Breaks: ${activityCounts.drinking} times (${drinkingPercentage}%)
+• Distracted: ${activityCounts.distracted} times (${distractedPercentage}%)
+
+🎯 PRODUCTIVITY ASSESSMENT: ${productivity}
+
+🔍 KEY INSIGHTS:
+${workingPercentage >= 70 ? '✅ Good focus levels maintained' : '⚠️ Focus could be improved'}
+${phonePercentage <= 10 ? '✅ Minimal phone distractions' : '📱 Phone usage detected - consider phone-free periods'}
+${awayPercentage <= 20 ? '✅ Good desk presence' : '🚶 Frequent breaks - ensure they\'re productive'}
+
+💡 RECOMMENDATIONS:
+${workingPercentage < 60 ? '• Try the Pomodoro technique (25min work, 5min break)\n' : ''}${phonePercentage > 15 ? '• Consider putting phone in another room\n' : ''}${distractedPercentage > 20 ? '• Minimize distractions in your workspace\n' : ''}${workingPercentage >= 80 ? '• Great job! Keep up the focused work\n' : ''}
+
+📱 DISTRACTION ANALYSIS:
+Main Issue: ${mainDistraction}
+Focus vs Distraction Ratio: ${workingPercentage}% focused, ${100 - workingPercentage}% other activities`;
+
+            summaryContent.textContent = summary;
+        }
+
+
+
+        // Clear all data
+        function clearData() {
+            if (confirm("Are you sure you want to clear all productivity data?")) {
+                activities = [];
+                activityCounts = { working: 0, phone: 0, away: 0, drinking: 0, distracted: 0 };
+                sessionStartTime = null;
+                
+                localStorage.removeItem('productivityTracker');
+                
+                // Reset UI
+                activityList.innerHTML = '<p style="text-align: center; color: #6c757d; font-style: italic;">No activities recorded yet</p>';
+                updateStatistics();
+                sessionInfo.textContent = "Session not started";
+                summaryContent.textContent = "Click 'Generate Summary' to analyze your productivity session with AI insights.";
+                currentActivity.textContent = "Data cleared - Ready to start tracking...";
+                currentActivity.style.background = "linear-gradient(45deg, #17a2b8, #20c997)";
             }
         }
 
+        // Event listeners
         startButton.addEventListener('click', () => {
             if (isProcessing) {
                 handleStop();
@@ -247,10 +916,25 @@
             }
         });
 
-        // Initialize camera when the page loads
-        window.addEventListener('DOMContentLoaded', initCamera);
+        localSummaryButton.addEventListener('click', () => {
+            localSummaryButton.disabled = true;
+            localSummaryButton.innerHTML = '<span class="loading"></span> Analyzing...';
+            
+            setTimeout(() => {
+                generateLocalSummary();
+                localSummaryButton.disabled = false;
+                localSummaryButton.textContent = 'Generate Summary';
+            }, 800);
+        });
+        clearButton.addEventListener('click', clearData);
 
-        // Optional: Stop stream when page is closed/navigated away to release camera
+        // Initialize app
+        window.addEventListener('DOMContentLoaded', () => {
+            initCamera();
+            loadFromLocalStorage();
+        });
+
+        // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
@@ -258,7 +942,15 @@
             if (intervalId) {
                 clearInterval(intervalId);
             }
+            saveToLocalStorage();
         });
+
+        // Update session info every minute
+        setInterval(() => {
+            if (sessionStartTime) {
+                updateSessionInfo();
+            }
+        }, 60000);
 
     </script>
 </body>
